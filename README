@@ -1,1 +1,11 @@
+﻿ECHO AI OS desktop widget
 
+This workspace includes a lightweight holographic desktop companion page and a batch launcher that opens it in Chrome or Edge.
+
+Run:
+
+  Launch_Echo_Widget.bat
+
+or open:
+
+  echo-desktop-widget/index.html

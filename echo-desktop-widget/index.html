@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ECHO AI OS</title>
+    <style>
+      :root {
+        --bg-1: #08131f;
+        --bg-2: #0f2032;
+        --panel: rgba(13, 42, 61, 0.72);
+        --panel-strong: rgba(15, 55, 77, 0.92);
+        --line: rgba(122, 217, 255, 0.25);
+        --cyan: #7ce8ff;
+        --teal: #58f2d2;
+        --mint: #b6ffd1;
+        --purple: #9ca8ff;
+        --ink: #eafcff;
+        --muted: #a7bfd4;
+        --warning: #ffd97c;
+        --danger: #ff9aa3;
+        --shadow: rgba(0, 0, 0, 0.38);
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: transparent;
+        color: var(--ink);
+        overflow: hidden;
+      }
+
+      body {
+        position: relative;
+      }
+
+      .widget {
+        position: fixed;
+        right: 24px;
+        top: 24px;
+        width: 390px;
+        height: 700px;
+        border: 1px solid var(--line);
+        border-radius: 26px;
+        background: linear-gradient(180deg, rgba(8, 20, 32, 0.92), rgba(10, 30, 42, 0.82));
+        box-shadow: 0 30px 80px var(--shadow);
+        overflow: hidden;
+        position: fixed;
+        backdrop-filter: blur(12px);
+        user-select: none;
+      }
+
+      .widget::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(124,232,255,0.12), transparent 35%, rgba(88,242,210,0.08));
+        pointer-events: none;
+      }
+
+      .shell {
+        position: relative;
+        z-index: 1;
+        padding: 20px 16px 18px;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 8px 14px;
+        user-select: none;
+      }
+
+      .window-controls {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .window-controls span {
+        width: 10px;
+        height: 10px;
+        display: inline-block;
+        border-radius: 50%;
+      }
+
+      .window-controls span:nth-child(1) { background: #ff6b6b; }
+      .window-controls span:nth-child(2) { background: #feca57; }
+      .window-controls span:nth-child(3) { background: #70e1a4; }
+
+      .brand {
+        font-size: 0.72rem;
+        letter-spacing: 0.26rem;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-left: 8px;
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(88, 242, 210, 0.12);
+        border: 1px solid rgba(88, 242, 210, 0.3);
+        font-size: 0.7rem;
+        color: var(--teal);
+        letter-spacing: 0.08rem;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--teal);
+        box-shadow: 0 0 12px rgba(88,242,210,0.8);
+      }
+
+      .header {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: end;
+        padding: 8px 4px 16px;
+      }
+
+      .title {
+        margin: 0;
+        font-size: 2.1rem;
+        font-weight: 700;
+        letter-spacing: 0.04rem;
+      }
+
+      .meta {
+        color: var(--muted);
+        font-size: 0.84rem;
+        letter-spacing: 0.08rem;
+        text-transform: uppercase;
+      }
+
+      .date-badge {
+        padding: 6px 10px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: rgba(122, 217, 255, 0.04);
+        text-align: center;
+      }
+
+      .date-badge strong {
+        display: block;
+        font-size: 1rem;
+        color: var(--cyan);
+      }
+
+      .hero {
+        display: grid;
+        gap: 14px;
+        padding: 12px 4px 18px;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 14px 14px 12px;
+        backdrop-filter: blur(8px);
+      }
+
+      .panel-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.12rem;
+        font-size: 0.7rem;
+      }
+
+      .clock-box {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .clock {
+        font-size: 2.5rem;
+        font-weight: 700;
+        letter-spacing: 0.06rem;
+      }
+
+      .clock-sub {
+        color: var(--muted);
+        font-size: 0.8rem;
+        letter-spacing: 0.08rem;
+        text-transform: uppercase;
+      }
+
+      .signal {
+        display: flex;
+        gap: 6px;
+        align-items: end;
+        height: 28px;
+      }
+
+      .signal span {
+        width: 5px;
+        border-radius: 999px;
+        background: linear-gradient(180deg, var(--cyan), var(--teal));
+        display: block;
+        opacity: 0.88;
+      }
+
+      .signal span:nth-child(1) { height: 12px; }
+      .signal span:nth-child(2) { height: 18px; }
+      .signal span:nth-child(3) { height: 26px; }
+      .signal span:nth-child(4) { height: 20px; }
+      .signal span:nth-child(5) { height: 14px; }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0,1fr));
+        gap: 10px;
+      }
+
+      .metric {
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(124,232,255,0.12);
+        border-radius: 14px;
+        padding: 10px 8px 8px;
+        text-align: center;
+      }
+
+      .metric strong {
+        display: block;
+        font-size: 1.25rem;
+        color: var(--cyan);
+        margin-bottom: 4px;
+      }
+
+      .metric span {
+        color: var(--muted);
+        font-size: 0.68rem;
+        letter-spacing: 0.08rem;
+        text-transform: uppercase;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 14px;
+      }
+
+      .mini-panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 12px 12px 10px;
+      }
+
+      .mini-panel h3 {
+        margin: 0 0 12px;
+        font-size: 0.72rem;
+        letter-spacing: 0.12rem;
+        color: var(--muted);
+        text-transform: uppercase;
+      }
+
+      .task-list, .command-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 8px;
+      }
+
+      .task-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.82rem;
+        color: var(--ink);
+        padding: 8px 8px;
+        border-radius: 10px;
+        background: rgba(124, 232, 255, 0.04);
+        border: 1px solid rgba(124,232,255,0.08);
+      }
+
+      .task-item small {
+        color: var(--muted);
+      }
+
+      .tag {
+        display: inline-block;
+        border-radius: 999px;
+        padding: 4px 8px;
+        font-size: 0.62rem;
+        letter-spacing: 0.06rem;
+        text-transform: uppercase;
+      }
+
+      .tag.live { background: rgba(88,242,210,0.16); color: var(--teal); }
+      .tag.warn { background: rgba(255,217,124,0.14); color: var(--warning); }
+      .tag.info { background: rgba(156,168,255,0.14); color: var(--purple); }
+
+      .command-list li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.78rem;
+        padding: 8px 8px;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(124,232,255,0.08);
+      }
+
+      .command-list code {
+        color: var(--cyan);
+        font-family: Consolas, "Courier New", monospace;
+      }
+
+      .input-panel {
+        margin-top: 16px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .terminal {
+        background: rgba(7, 15, 24, 0.9);
+        border: 1px solid rgba(124,232,255,0.16);
+        border-radius: 14px;
+        padding: 10px 12px;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 0.82rem;
+        color: var(--teal);
+        min-height: 54px;
+        display: flex;
+        align-items: center;
+      }
+
+      .terminal .prompt {
+        color: var(--cyan);
+        margin-right: 8px;
+      }
+
+      .command-box {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 8px;
+        align-items: center;
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(124,232,255,0.12);
+        border-radius: 12px;
+        padding: 8px 10px;
+      }
+
+      .command-box label {
+        color: var(--muted);
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08rem;
+      }
+
+      .command-box input {
+        background: transparent;
+        border: none;
+        color: var(--ink);
+        font-size: 0.82rem;
+        outline: none;
+        width: 100%;
+      }
+
+      .send-btn {
+        border: none;
+        background: linear-gradient(135deg, var(--cyan), var(--teal));
+        color: #072638;
+        border-radius: 10px;
+        font-weight: 700;
+        padding: 8px 12px;
+        cursor: pointer;
+      }
+
+      @media (max-width: 360px) {
+        .clock { font-size: 2.1rem; }
+        .metrics { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="widget">
+      <div class="shell">
+        <div class="topbar">
+          <div class="window-controls" aria-label="Window controls">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <div class="brand">ECHO</div>
+          <div class="status-pill"><span class="status-dot"></span>Online</div>
+        </div>
+
+        <div class="header">
+          <div>
+            <div class="meta">Holographic desktop companion</div>
+            <h1 class="title">Echo</h1>
+          </div>
+          <div class="date-badge">
+            <span id="day-label">MON</span>
+            <strong id="date-label">08</strong>
+          </div>
+        </div>
+
+        <div class="hero">
+          <div class="panel">
+            <div class="panel-title">
+              <span>Core sync</span>
+              <span>94.2%</span>
+            </div>
+            <div class="clock-box">
+              <div>
+                <div id="clock" class="clock">09:41</div>
+                <div id="clock-sub" class="clock-sub">local time</div>
+              </div>
+              <div class="signal" aria-label="signal strength">
+                <span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="metrics">
+            <div class="metric">
+              <strong id="focus-score">87</strong>
+              <span>Focus</span>
+            </div>
+            <div class="metric">
+              <strong id="task-score">12</strong>
+              <span>Tasks</span>
+            </div>
+            <div class="metric">
+              <strong id="energy-score">72</strong>
+              <span>Energy</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="mini-panel">
+            <h3>Priority flow</h3>
+            <ul class="task-list">
+              <li class="task-item"><span>Client briefing</span><small>09:30</small></li>
+              <li class="task-item"><span>Research sweep</span><small>11:00</small></li>
+              <li class="task-item"><span>Prototype review</span><small>13:40</small></li>
+            </ul>
+          </div>
+
+          <div class="mini-panel">
+            <h3>AI intent</h3>
+            <ul class="task-list">
+              <li class="task-item"><span>Summaries</span><span class="tag live">Live</span></li>
+              <li class="task-item"><span>Context recall</span><span class="tag warn">On</span></li>
+              <li class="task-item"><span>Automation</span><span class="tag info">Ready</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="input-panel">
+          <div class="panel">
+            <div class="panel-title">
+              <span>System stream</span>
+              <span>USER</span>
+            </div>
+            <div id="terminal" class="terminal"><span class="prompt">&gt;</span> Ready for launch sequence.</div>
+          </div>
+          <div class="command-box">
+            <label>cmd</label>
+            <input id="command-input" type="text" value="status update" aria-label="Command input" />
+            <button id="send-btn" class="send-btn" type="button">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const clockEl = document.getElementById('clock');
+      const dayLabel = document.getElementById('day-label');
+      const dateLabel = document.getElementById('date-label');
+      const clockSub = document.getElementById('clock-sub');
+      const terminal = document.getElementById('terminal');
+      const input = document.getElementById('command-input');
+      const sendBtn = document.getElementById('send-btn');
+      const widget = document.querySelector('.widget');
+
+      let drag = null;
+
+      widget.addEventListener('pointerdown', (event) => {
+        if (event.target.closest('input, button, .status-pill')) return;
+        drag = {
+          offsetX: event.clientX - widget.offsetLeft,
+          offsetY: event.clientY - widget.offsetTop
+        };
+        widget.setPointerCapture(event.pointerId);
+      });
+
+      widget.addEventListener('pointermove', (event) => {
+        if (!drag) return;
+        widget.style.left = `${event.clientX - drag.offsetX}px`;
+        widget.style.top = `${event.clientY - drag.offsetY}px`;
+        widget.style.right = 'auto';
+      });
+
+      widget.addEventListener('pointerup', () => { drag = null; });
+      widget.addEventListener('pointerleave', () => { drag = null; });
+
+      const updateClock = () => {
+        const now = new Date();
+        const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+        const day = now.toLocaleDateString([], { weekday: 'short' }).toUpperCase();
+        const date = now.toLocaleDateString([], { day: '2-digit' });
+        clockEl.textContent = time;
+        dayLabel.textContent = day;
+        dateLabel.textContent = date;
+        clockSub.textContent = now.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+      };
+
+      const commands = {
+        help: 'Available commands: status, focus, plan, clear',
+        status: 'All systems operational. Network sync stable at 94.2%.',
+        focus: 'Focus mode engaged. Deep work window optimized for 87%.',
+        plan: 'Agenda loaded: briefing, research sweep, prototype review.',
+        clear: 'Terminal cleared.'
+      };
+
+      const handleCommand = () => {
+        const raw = input.value.trim();
+        if (!raw) return;
+
+        const command = raw.toLowerCase();
+        const response = commands[command] || `Command not found: "${raw}". Try help.`;
+        terminal.innerHTML = `<span class="prompt">&gt;</span> ${raw}<br><span class="prompt">&gt;</span> ${response}`;
+        input.value = '';
+      };
+
+      sendBtn.addEventListener('click', handleCommand);
+      input.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') handleCommand();
+      });
+
+      updateClock();
+      setInterval(updateClock, 30000);
+    </script>
+  </body>
+</html>
