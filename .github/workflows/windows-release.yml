@@ -1,0 +1,37 @@
+name: Build ECHO Windows widget
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Publish Windows app
+        run: dotnet publish EchoWidget.Desktop/EchoWidget.Desktop.csproj --configuration Release --runtime win-x64 --self-contained true --output publish
+      - name: Include widget assets
+        run: Copy-Item echo-desktop-widget publish/echo-desktop-widget -Recurse
+      - name: Include launcher and instructions
+        run: |
+          Copy-Item Launch_Echo_Widget.bat publish/
+          Copy-Item README publish/README.txt
+      - name: Create portable package
+        run: Compress-Archive -Path publish/* -DestinationPath ECHO-Widget-Windows-x64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ECHO-Widget-Windows-x64
+          path: ECHO-Widget-Windows-x64.zip
+      - name: Publish GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ECHO-Widget-Windows-x64.zip

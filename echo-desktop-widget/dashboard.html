@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your ECHO dashboard</title>
+    <link rel="stylesheet" href="theme.css" />
+    <link rel="stylesheet" href="dashboard.css" />
+  </head>
+  <body>
+    <div class="dashboard-shell">
+      <header class="dashboard-header">
+        <a class="wordmark" href="index.html" aria-label="ECHO companion">
+          <span class="wordmark-mark" aria-hidden="true">E</span>
+          <span>ECHO <small>COMPANION DESK</small></span>
+        </a>
+        <nav class="dashboard-nav" aria-label="Dashboard sections">
+          <a href="#day">Your day</a>
+          <a href="#routines">Routines</a>
+          <a href="#conversation">Conversation</a>
+          <a href="#settings">Settings</a>
+        </nav>
+        <button id="widget-view" class="outline-button" type="button">Back to widget</button>
+      </header>
+
+      <main>
+        <section class="dashboard-intro">
+          <div>
+            <h1>Let’s make today feel manageable.</h1>
+            <p id="day-greeting">A little structure, with room to breathe.</p>
+          </div>
+          <time id="today-date"></time>
+        </section>
+
+        <section class="dashboard-layout" aria-label="Today’s plan and routines">
+          <div class="main-column">
+            <section class="surface priority-surface" id="day">
+              <div class="section-heading">
+                <div>
+                  <h2>Your priorities</h2>
+                  <p id="priority-summary">Add what matters today. You can adjust the plan anytime.</p>
+                </div>
+                <span id="priority-count" class="count-badge">0 open</span>
+              </div>
+              <form id="task-form" class="dashboard-task-form">
+                <label class="visually-hidden" for="task-input">New priority</label>
+                <input id="task-input" type="text" maxlength="100" placeholder="What would you like to get done?" required />
+                <label class="visually-hidden" for="task-due">Optional reminder time</label>
+                <input id="task-due" type="datetime-local" />
+                <button class="primary-button" type="submit">Add priority</button>
+              </form>
+              <ul id="task-list" class="dashboard-task-list" aria-live="polite"></ul>
+            </section>
+
+            <section class="surface focus-surface" id="focus">
+              <div class="section-heading">
+                <div>
+                  <h2>Make a little room to focus</h2>
+                  <p>One thing at a time. Your session follows you between the widget and dashboard.</p>
+                </div>
+              </div>
+              <div class="focus-controls">
+                <div>
+                  <div id="focus-time" class="focus-time">25:00</div>
+                  <div id="focus-caption" class="focus-caption">A gentle 25-minute session</div>
+                </div>
+                <button id="focus-button" class="primary-button" type="button">Start focus</button>
+              </div>
+              <div class="focus-track" aria-hidden="true"><span id="focus-progress"></span></div>
+              <p id="focus-message" class="inline-message" role="status"></p>
+            </section>
+          </div>
+
+          <aside class="side-column">
+            <section class="surface routines-surface" id="routines">
+              <div class="section-heading">
+                <div>
+                  <h2>Gentle reminders</h2>
+                  <p>Only when you want them. They run while ECHO is open.</p>
+                </div>
+                <span id="reminder-state" class="count-badge">Off</span>
+              </div>
+              <button id="reminders-button" class="outline-button wide-button" type="button">Enable reminders</button>
+              <label class="toggle-row">
+                <input id="quiet-toggle" type="checkbox" />
+                <span>Keep things quiet</span>
+              </label>
+              <p id="routine-message" class="inline-message" role="status"></p>
+            </section>
+
+            <section class="surface note-surface">
+              <h2>A note from Echo</h2>
+              <p id="companion-note">Your priorities and routines stay on this device. You can change or clear them whenever you like.</p>
+              <button class="text-button" id="open-chat" type="button">Talk something through <span aria-hidden="true">→</span></button>
+            </section>
+          </aside>
+        </section>
+
+        <section class="surface conversation-surface" id="conversation" aria-label="Conversation with Echo">
+          <div class="section-heading">
+            <div>
+              <h2>Conversation</h2>
+              <p>Chat is sent to the AI service you configure. It’s remembered only if you turn that on below.</p>
+            </div>
+            <button id="clear-chat" class="text-button" type="button">Clear conversation</button>
+          </div>
+          <div id="chat-stream" class="dashboard-chat-stream" aria-live="polite"></div>
+          <div id="chat-status" class="inline-message" role="status"></div>
+          <form id="chat-form" class="dashboard-chat-form">
+            <label class="visually-hidden" for="chat-input">Message Echo</label>
+            <input id="chat-input" type="text" maxlength="2000" placeholder="What’s on your mind?" />
+            <button id="send-button" class="primary-button" type="submit">Send</button>
+          </form>
+        </section>
+
+        <section class="surface settings-surface" id="settings">
+          <div class="section-heading">
+            <div>
+              <h2>Companion settings</h2>
+              <p>These settings are shared with your widget and stored on this device.</p>
+            </div>
+            <span id="connection-state" class="count-badge">Local mode</span>
+          </div>
+          <div class="settings-grid">
+            <label>AI service URL
+              <input id="api-url" type="url" inputmode="url" placeholder="https://your-echo-api.example.com" />
+            </label>
+            <label>Private access code
+              <input id="access-code" type="password" autocomplete="off" placeholder="From the ECHO service owner" />
+            </label>
+            <label class="toggle-row">
+              <input id="memory-toggle" type="checkbox" />
+              <span>Remember this conversation on this device</span>
+            </label>
+            <div class="settings-note">Your provider API key belongs on the private backend, never in these settings or the website.</div>
+          </div>
+          <div class="settings-actions">
+            <button id="save-settings" class="outline-button" type="button">Save settings</button>
+            <span id="settings-message" class="inline-message" role="status"></span>
+          </div>
+        </section>
+      </main>
+      <footer class="dashboard-footer">ECHO stays gentle by design. You’re always in control of what it remembers and when it nudges you.</footer>
+    </div>
+    <script src="config.js"></script>
+    <script src="dashboard.js"></script>
+  </body>
+</html>

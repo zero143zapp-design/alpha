@@ -1,0 +1,7 @@
+bin/
+obj/
+publish/
+_site/
+__pycache__/
+*.pyc
+ECHO-Widget-Windows-x64.zip
