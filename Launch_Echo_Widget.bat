@@ -1,19 +1,18 @@
 @echo off
 setlocal
 
-set "CHROME=C:\Program Files\Google\Chrome\Application\chrome.exe"
-set "EDGE=C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
-set "TARGET=file:///c:/Users/Zero1/.copilot/repos/copilot-worktrees/alpha/zero143zapp-design-literate-giggle/echo-desktop-widget/index.html"
+set "APP=%~dp0EchoWidget.Desktop.exe"
+set "HTML=%~dp0echo-desktop-widget\index.html"
 
-if exist "%CHROME%" (
-    start "" "%CHROME%" --app="%TARGET%" --window-size=390,700
+if exist "%APP%" (
+    start "" "%APP%"
     exit /b 0
 )
 
-if exist "%EDGE%" (
-    start "" "%EDGE%" --app="%TARGET%" --window-size=390,700
-    exit /b 0
+if not exist "%HTML%" (
+    echo ECHO could not find the desktop app or web widget.
+    exit /b 1
 )
 
-start "" "%~dp0echo-desktop-widget\index.html"
+start "" "%HTML%"
 exit /b 0
