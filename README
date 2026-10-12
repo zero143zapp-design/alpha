@@ -1,11 +1,56 @@
-﻿ECHO AI OS desktop widget
+# Zephyr
 
-This workspace includes a lightweight holographic desktop companion page and a batch launcher that opens it in Chrome or Edge.
+Zephyr is an early dating-app interface foundation. This repository contains a
+React/Vite frontend and an Express API that serves sample profile data. It does
+not yet have user accounts, matching, a connected database, or enforced
+photo-privacy controls.
 
-Run:
+## Run locally
 
-  Launch_Echo_Widget.bat
+Requirements: Node.js 20 or newer and npm.
 
-or open:
+1. Copy `.env.example` to `.env` if you want to change the API port. The app
+   runs without environment variables.
+2. Install dependencies from the repository root:
 
-  echo-desktop-widget/index.html
+   ```sh
+   npm install
+   ```
+
+3. Start the frontend and API together:
+
+   ```sh
+   npm run dev
+   ```
+
+4. Open the Vite URL printed in the terminal (normally
+   `http://localhost:5173`).
+
+The web app requests demo profiles from `/api/profiles`; Vite proxies API
+requests to the Express server on port 3001. The API health endpoint is
+`http://localhost:3001/api/health`. Use `npm run build` to build the frontend
+for production.
+
+## Current scope
+
+- Responsive profile discovery screen with sample profiles and illustrative
+  photo-sharing labels.
+- Like/pass controls update only in browser memory for the current session.
+- Express endpoints for health and sample profile data.
+- Black and cobalt visual direction with a visible demo-data notice.
+
+The sample photos are public stock-image URLs. Privacy labels are illustrative:
+there is no authentication, authorization, private-image storage, encrypted
+messaging, or persistent profile/action storage. Do not enter personal or
+sensitive information.
+
+Supabase/PostgreSQL remains the intended persistence direction, but it is not
+connected. The Supabase placeholders in `.env.example` are optional setup
+references and are not currently read by the app. Do not put service-role
+credentials in a frontend environment variable.
+
+## Existing ECHO widget
+
+The unrelated standalone ECHO AI OS desktop widget remains available at
+`echo-desktop-widget/index.html`. Open it directly in a browser, or run
+`Launch_Echo_Widget.bat` on Windows.

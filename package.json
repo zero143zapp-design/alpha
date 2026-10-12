@@ -1,0 +1,16 @@
+{
+  "name": "zephyr-app",
+  "private": true,
+  "workspaces": [
+    "apps/api",
+    "apps/web"
+  ],
+  "scripts": {
+    "dev": "concurrently --kill-others -n api,web -c blue,cyan \"npm run dev --workspace @zephyr/api\" \"npm run dev --workspace @zephyr/web\"",
+    "build": "npm run build --workspace @zephyr/web",
+    "start:api": "npm run start --workspace @zephyr/api"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
