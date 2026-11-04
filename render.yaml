@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: echo-widget-api
+    runtime: python
+    plan: free
+    buildCommand: "echo ready"
+    startCommand: "python api/server.py"
+    healthCheckPath: /health
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_BASE_URL
+        value: https://api.openai.com/v1
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: ECHO_ACCESS_CODE
+        generateValue: true
+      - key: ECHO_ALLOWED_ORIGINS
+        value: https://zero143zapp-design.github.io,https://echo.local

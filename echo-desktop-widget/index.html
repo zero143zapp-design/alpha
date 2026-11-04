@@ -4,24 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ECHO AI OS</title>
+    <link rel="stylesheet" href="theme.css" />
     <style>
-      :root {
-        --bg-1: #08131f;
-        --bg-2: #0f2032;
-        --panel: rgba(13, 42, 61, 0.72);
-        --panel-strong: rgba(15, 55, 77, 0.92);
-        --line: rgba(122, 217, 255, 0.25);
-        --cyan: #7ce8ff;
-        --teal: #58f2d2;
-        --mint: #b6ffd1;
-        --purple: #9ca8ff;
-        --ink: #eafcff;
-        --muted: #a7bfd4;
-        --warning: #ffd97c;
-        --danger: #ff9aa3;
-        --shadow: rgba(0, 0, 0, 0.38);
-      }
-
       * { box-sizing: border-box; }
 
       html, body {
@@ -29,7 +13,9 @@
         width: 100%;
         height: 100%;
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background: transparent;
+        background:
+          radial-gradient(circle at 75% 12%, rgba(98, 191, 255, 0.22), transparent 34%),
+          linear-gradient(135deg, var(--bg-1), var(--bg-2));
         color: var(--ink);
         overflow: hidden;
       }
@@ -42,8 +28,9 @@
         position: fixed;
         right: 24px;
         top: 24px;
-        width: 390px;
-        height: 700px;
+        width: min(390px, calc(100vw - 48px));
+        height: min(700px, calc(100vh - 48px));
+        min-height: 560px;
         border: 1px solid var(--line);
         border-radius: 26px;
         background: linear-gradient(180deg, rgba(8, 20, 32, 0.92), rgba(10, 30, 42, 0.82));
@@ -52,6 +39,19 @@
         position: fixed;
         backdrop-filter: blur(12px);
         user-select: none;
+      }
+
+      html.desktop-shell,
+      html.desktop-shell body {
+        background: #08131f;
+      }
+
+      .desktop-shell .widget {
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        border-radius: 0;
       }
 
       .widget::before {
@@ -66,39 +66,67 @@
         position: relative;
         z-index: 1;
         padding: 20px 16px 18px;
+        height: 100%;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(124, 232, 255, 0.3) transparent;
       }
 
       .topbar {
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-start;
         align-items: center;
-        padding: 10px 8px 14px;
+        gap: 12px;
+        padding: 6px 4px 14px;
         user-select: none;
+        cursor: grab;
       }
 
       .window-controls {
-        display: flex;
+        display: none;
         gap: 8px;
         align-items: center;
+        cursor: default;
       }
 
-      .window-controls span {
-        width: 10px;
-        height: 10px;
-        display: inline-block;
+      .desktop-shell .window-controls {
+        display: flex;
+      }
+
+      .window-control {
+        border: 0;
+        padding: 0;
+        width: 11px;
+        height: 11px;
         border-radius: 50%;
+        cursor: pointer;
       }
 
-      .window-controls span:nth-child(1) { background: #ff6b6b; }
-      .window-controls span:nth-child(2) { background: #feca57; }
-      .window-controls span:nth-child(3) { background: #70e1a4; }
+      .window-control.minimize { background: #feca57; }
+      .window-control.close { background: #ff6b6b; }
 
       .brand {
         font-size: 0.72rem;
         letter-spacing: 0.26rem;
         text-transform: uppercase;
         color: var(--muted);
-        margin-left: 8px;
+        flex: 1;
+      }
+
+      .greeting {
+        margin: 2px 4px 14px;
+        font-size: 0.83rem;
+        line-height: 1.5;
+        color: var(--muted);
+      }
+
+      .greeting strong {
+        color: var(--mint);
+        font-weight: 600;
+      }
+
+      .dashboard-link {
+        margin: 0 4px 12px;
       }
 
       .status-pill {
@@ -112,6 +140,10 @@
         font-size: 0.7rem;
         color: var(--teal);
         letter-spacing: 0.08rem;
+      }
+
+      #connection-label {
+        white-space: nowrap;
       }
 
       .status-dot {
@@ -295,6 +327,21 @@
 
       .task-item small {
         color: var(--muted);
+        flex-shrink: 0;
+      }
+
+      .task-remove {
+        flex-shrink: 0;
+        border: 0;
+        padding: 4px;
+        color: var(--muted);
+        background: transparent;
+        cursor: pointer;
+        font-size: 1rem;
+      }
+
+      .task-remove:hover {
+        color: var(--danger);
       }
 
       .tag {
@@ -378,6 +425,187 @@
         width: 100%;
       }
 
+      .task-form {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 7px;
+        margin-top: 10px;
+      }
+
+      .task-form #task-due {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        width: 100%;
+        font-size: 0.7rem;
+      }
+
+      .task-form button {
+        grid-column: 2;
+        grid-row: 1;
+      }
+
+      .task-form input,
+      .settings input {
+        min-width: 0;
+        padding: 8px 9px;
+        border: 1px solid rgba(124, 232, 255, 0.17);
+        border-radius: 9px;
+        background: rgba(7, 15, 24, 0.65);
+        color: var(--ink);
+        font: inherit;
+      }
+
+      input::placeholder {
+        color: #a7bfd4;
+        opacity: 1;
+      }
+
+      button:focus-visible,
+      input:focus-visible {
+        outline: 2px solid var(--cyan);
+        outline-offset: 2px;
+      }
+
+      .task-list {
+        max-height: 160px;
+        overflow: auto;
+      }
+
+      .task-item label {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        min-width: 0;
+      }
+
+      .task-item label span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .task-item input[type="checkbox"] {
+        accent-color: var(--teal);
+      }
+
+      .task-item.done label span {
+        text-decoration: line-through;
+        color: var(--muted);
+      }
+
+      .automation-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 7px;
+        margin-top: 10px;
+      }
+
+      .secondary-btn {
+        border: 1px solid rgba(124, 232, 255, 0.22);
+        border-radius: 9px;
+        padding: 7px 9px;
+        min-height: 38px;
+        color: var(--cyan);
+        background: rgba(124, 232, 255, 0.06);
+        cursor: pointer;
+        font-size: 0.73rem;
+      }
+
+      .secondary-btn:hover,
+      .send-btn:hover {
+        filter: brightness(1.12);
+      }
+
+      .chat-panel {
+        display: grid;
+        gap: 9px;
+        margin-top: 14px;
+      }
+
+      .chat-stream {
+        display: grid;
+        gap: 8px;
+        max-height: 180px;
+        overflow: auto;
+        padding-right: 3px;
+      }
+
+      .chat-message {
+        max-width: 94%;
+        padding: 9px 10px;
+        border-radius: 12px;
+        font-size: 0.79rem;
+        line-height: 1.45;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+
+      .chat-message.echo {
+        justify-self: start;
+        color: var(--ink);
+        background: rgba(124, 232, 255, 0.08);
+        border: 1px solid rgba(124, 232, 255, 0.12);
+      }
+
+      .chat-message.you {
+        justify-self: end;
+        color: #062637;
+        background: linear-gradient(135deg, var(--cyan), var(--teal));
+      }
+
+      .chat-form {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 7px;
+      }
+
+      .chat-form input {
+        min-width: 0;
+        padding: 10px;
+        border: 1px solid rgba(124, 232, 255, 0.16);
+        border-radius: 10px;
+        background: rgba(7, 15, 24, 0.75);
+        color: var(--ink);
+        font: inherit;
+      }
+
+      .chat-status {
+        min-height: 1em;
+        color: var(--muted);
+        font-size: 0.68rem;
+      }
+
+      .settings {
+        display: none;
+        gap: 8px;
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 12px;
+        border: 1px solid rgba(124, 232, 255, 0.16);
+        background: rgba(7, 15, 24, 0.72);
+      }
+
+      .settings.open {
+        display: grid;
+      }
+
+      .settings label {
+        display: grid;
+        gap: 5px;
+        color: var(--muted);
+        font-size: 0.68rem;
+      }
+
+      .settings .setting-toggle {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+      }
+
+      .settings .setting-toggle input {
+        accent-color: var(--teal);
+      }
+
       .send-btn {
         border: none;
         background: linear-gradient(135deg, var(--cyan), var(--teal));
@@ -391,6 +619,14 @@
       @media (max-width: 360px) {
         .clock { font-size: 2.1rem; }
         .metrics { grid-template-columns: 1fr; }
+        .widget { right: 12px; width: calc(100vw - 24px); }
+      }
+
+      @media (pointer: coarse) {
+        .secondary-btn,
+        .send-btn {
+          min-height: 44px;
+        }
       }
     </style>
   </head>
@@ -399,17 +635,16 @@
       <div class="shell">
         <div class="topbar">
           <div class="window-controls" aria-label="Window controls">
-            <span></span>
-            <span></span>
-            <span></span>
+            <button class="window-control minimize" id="minimize-btn" aria-label="Minimize widget" title="Minimize"></button>
+            <button class="window-control close" id="close-btn" aria-label="Close widget" title="Close"></button>
           </div>
-          <div class="brand">ECHO</div>
-          <div class="status-pill"><span class="status-dot"></span>Online</div>
+          <div class="brand">ECHO AI OS</div>
+          <div class="status-pill"><span class="status-dot"></span><span id="connection-label">Local companion</span></div>
         </div>
 
         <div class="header">
           <div>
-            <div class="meta">Holographic desktop companion</div>
+            <div class="meta">Your desktop companion</div>
             <h1 class="title">Echo</h1>
           </div>
           <div class="date-badge">
@@ -417,12 +652,14 @@
             <strong id="date-label">08</strong>
           </div>
         </div>
+        <p id="greeting" class="greeting">Getting your day in sync...</p>
+        <button id="dashboard-btn" class="secondary-btn dashboard-link" type="button">Open your dashboard</button>
 
         <div class="hero">
           <div class="panel">
             <div class="panel-title">
-              <span>Core sync</span>
-              <span>94.2%</span>
+              <span>Your local time</span>
+              <span>HERE WITH YOU</span>
             </div>
             <div class="clock-box">
               <div>
@@ -437,87 +674,119 @@
 
           <div class="metrics">
             <div class="metric">
-              <strong id="focus-score">87</strong>
-              <span>Focus</span>
+              <strong id="focus-score">25</strong>
+              <span>Focus min</span>
             </div>
             <div class="metric">
-              <strong id="task-score">12</strong>
+              <strong id="task-score">0</strong>
               <span>Tasks</span>
             </div>
             <div class="metric">
-              <strong id="energy-score">72</strong>
-              <span>Energy</span>
+              <strong id="energy-score">Ready</strong>
+              <span>Today</span>
             </div>
           </div>
         </div>
 
         <div class="grid">
           <div class="mini-panel">
-            <h3>Priority flow</h3>
-            <ul class="task-list">
-              <li class="task-item"><span>Client briefing</span><small>09:30</small></li>
-              <li class="task-item"><span>Research sweep</span><small>11:00</small></li>
-              <li class="task-item"><span>Prototype review</span><small>13:40</small></li>
-            </ul>
+            <h3>Your priorities</h3>
+            <ul id="task-list" class="task-list" aria-live="polite"></ul>
+            <form id="task-form" class="task-form">
+              <input id="task-input" type="text" maxlength="100" placeholder="Add a task..." aria-label="New task" />
+              <input id="task-due" type="datetime-local" aria-label="Optional reminder time" title="Optional reminder time" />
+              <button class="secondary-btn" type="submit">Add</button>
+            </form>
           </div>
 
           <div class="mini-panel">
-            <h3>AI intent</h3>
-            <ul class="task-list">
-              <li class="task-item"><span>Summaries</span><span class="tag live">Live</span></li>
-              <li class="task-item"><span>Context recall</span><span class="tag warn">On</span></li>
-              <li class="task-item"><span>Automation</span><span class="tag info">Ready</span></li>
-            </ul>
+            <h3>Little nudges</h3>
+            <div id="automation-status" class="task-item"><span>Reminders are off</span><span class="tag warn">Off</span></div>
+            <div class="automation-actions">
+              <button id="reminders-btn" class="secondary-btn" type="button">Turn reminders on</button>
+              <button id="focus-btn" class="secondary-btn" type="button">Start focus</button>
+            </div>
+            <button id="settings-btn" class="secondary-btn" type="button" style="margin-top:8px">Companion settings</button>
+            <div id="settings" class="settings">
+              <label>AI backend URL (provided by the widget owner)
+                <input id="api-url" type="url" inputmode="url" placeholder="https://your-echo-api.example.com" />
+              </label>
+              <label>Private access code
+                <input id="access-code" type="password" autocomplete="off" placeholder="Only if your owner gave you one" />
+              </label>
+              <label class="setting-toggle"><input id="memory-toggle" type="checkbox" /> Remember this chat on this device</label>
+              <label class="setting-toggle"><input id="quiet-toggle" type="checkbox" /> Quiet reminders</label>
+              <p class="chat-status">Chat messages are sent to the configured AI provider. Optional chat memory stays on this device.</p>
+              <button id="save-settings" class="secondary-btn" type="button">Save settings</button>
+            </div>
           </div>
         </div>
 
-        <div class="input-panel">
-          <div class="panel">
-            <div class="panel-title">
-              <span>System stream</span>
-              <span>USER</span>
-            </div>
-            <div id="terminal" class="terminal"><span class="prompt">&gt;</span> Ready for launch sequence.</div>
+        <section class="panel chat-panel" aria-label="Conversation with Echo">
+          <div class="panel-title">
+            <span>A moment together</span>
+            <button id="clear-chat" class="secondary-btn" type="button">Clear</button>
           </div>
-          <div class="command-box">
-            <label>cmd</label>
-            <input id="command-input" type="text" value="status update" aria-label="Command input" />
-            <button id="send-btn" class="send-btn" type="button">Send</button>
-          </div>
-        </div>
+          <div id="chat-stream" class="chat-stream" aria-live="polite"></div>
+          <div id="chat-status" class="chat-status" role="status"></div>
+          <form id="chat-form" class="chat-form">
+            <input id="chat-input" type="text" maxlength="2000" placeholder="Tell me what’s on your mind..." aria-label="Message Echo" />
+            <button id="send-btn" class="send-btn" type="submit">Send</button>
+          </form>
+        </section>
       </div>
     </div>
 
+    <script src="config.js"></script>
     <script>
       const clockEl = document.getElementById('clock');
       const dayLabel = document.getElementById('day-label');
       const dateLabel = document.getElementById('date-label');
       const clockSub = document.getElementById('clock-sub');
-      const terminal = document.getElementById('terminal');
-      const input = document.getElementById('command-input');
-      const sendBtn = document.getElementById('send-btn');
       const widget = document.querySelector('.widget');
-
+      const chatStream = document.getElementById('chat-stream');
+      const chatForm = document.getElementById('chat-form');
+      const chatInput = document.getElementById('chat-input');
+      const chatStatus = document.getElementById('chat-status');
+      const taskList = document.getElementById('task-list');
+      const taskForm = document.getElementById('task-form');
+      const taskInput = document.getElementById('task-input');
+      const settings = document.getElementById('settings');
+      const storage = window.localStorage;
+      const loadJson = (key, fallback) => {
+        try {
+          const value = JSON.parse(storage.getItem(key));
+          return value ?? fallback;
+        } catch {
+          return fallback;
+        }
+      };
+      const loadSessionJson = (key, fallback) => {
+        try {
+          const value = JSON.parse(sessionStorage.getItem(key));
+          return value ?? fallback;
+        } catch {
+          return fallback;
+        }
+      };
+      const preferences = loadJson('echo.preferences', {
+        apiBase: window.ECHO_API_BASE || '',
+        accessCode: '',
+        rememberChat: false,
+        reminders: false,
+        quiet: false
+      });
+      let tasks = loadJson('echo.tasks', []);
+      let conversation = preferences.rememberChat
+        ? loadJson('echo.chat', [])
+        : loadSessionJson('echo.session-chat', []);
+      let focusTimer = null;
+      const initialFocus = loadJson('echo.focus', { remainingSeconds: 25 * 60, endsAt: null });
+      let focusEndsAt = initialFocus.endsAt;
+      let focusRemainingSeconds = focusEndsAt
+        ? Math.max(0, Math.ceil((focusEndsAt - Date.now()) / 1000))
+        : initialFocus.remainingSeconds;
       let drag = null;
-
-      widget.addEventListener('pointerdown', (event) => {
-        if (event.target.closest('input, button, .status-pill')) return;
-        drag = {
-          offsetX: event.clientX - widget.offsetLeft,
-          offsetY: event.clientY - widget.offsetTop
-        };
-        widget.setPointerCapture(event.pointerId);
-      });
-
-      widget.addEventListener('pointermove', (event) => {
-        if (!drag) return;
-        widget.style.left = `${event.clientX - drag.offsetX}px`;
-        widget.style.top = `${event.clientY - drag.offsetY}px`;
-        widget.style.right = 'auto';
-      });
-
-      widget.addEventListener('pointerup', () => { drag = null; });
-      widget.addEventListener('pointerleave', () => { drag = null; });
 
       const updateClock = () => {
         const now = new Date();
@@ -528,32 +797,343 @@
         dayLabel.textContent = day;
         dateLabel.textContent = date;
         clockSub.textContent = now.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+        const hour = now.getHours();
+        const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+        const openTasks = tasks.filter((task) => !task.done).length;
+        const greetingElement = document.getElementById('greeting');
+        const greetingLead = document.createElement('strong');
+        greetingLead.textContent = `${greeting}.`;
+        greetingElement.replaceChildren(
+          greetingLead,
+          document.createTextNode(
+            ` ${openTasks ? `You have ${openTasks} ${openTasks === 1 ? 'priority' : 'priorities'} today. ` : 'Your day is yours to shape. '}` +
+            'What would feel good to get done?'
+          )
+        );
       };
 
-      const commands = {
-        help: 'Available commands: status, focus, plan, clear',
-        status: 'All systems operational. Network sync stable at 94.2%.',
-        focus: 'Focus mode engaged. Deep work window optimized for 87%.',
-        plan: 'Agenda loaded: briefing, research sweep, prototype review.',
-        clear: 'Terminal cleared.'
+      const sendHostMessage = (message) => {
+        if (window.ECHO_DESKTOP_HOST === true) window.chrome.webview.postMessage(message);
       };
 
-      const handleCommand = () => {
-        const raw = input.value.trim();
-        if (!raw) return;
-
-        const command = raw.toLowerCase();
-        const response = commands[command] || `Command not found: "${raw}". Try help.`;
-        terminal.innerHTML = `<span class="prompt">&gt;</span> ${raw}<br><span class="prompt">&gt;</span> ${response}`;
-        input.value = '';
+      const showDashboard = () => {
+        if (window.ECHO_DESKTOP_HOST === true) sendHostMessage('dashboard');
+        else window.location.href = 'dashboard.html';
       };
 
-      sendBtn.addEventListener('click', handleCommand);
-      input.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter') handleCommand();
+      const checkChatService = async () => {
+        const apiBase = preferences.apiBase || window.ECHO_API_BASE || '';
+        const label = document.getElementById('connection-label');
+        if (!apiBase) {
+          label.textContent = 'Local companion';
+          return;
+        }
+        label.textContent = 'Checking AI...';
+        try {
+          const response = await fetch(`${apiBase}/health`);
+          const result = await response.json();
+          label.textContent = !response.ok
+            ? 'AI service offline'
+            : result.chatReady ? 'AI configured' : 'AI setup needed';
+        } catch {
+          label.textContent = 'AI service offline';
+        }
+      };
+
+      document.getElementById('close-btn').addEventListener('click', () => {
+        sendHostMessage('close');
+        if (window.ECHO_DESKTOP_HOST !== true) window.close();
+      });
+      document.getElementById('minimize-btn').addEventListener('click', () => {
+        sendHostMessage('minimize');
+      });
+      document.getElementById('dashboard-btn').addEventListener('click', showDashboard);
+      document.querySelector('.topbar').addEventListener('pointerdown', (event) => {
+        if (event.target.closest('button, .status-pill')) return;
+        if (window.ECHO_DESKTOP_HOST === true) {
+          sendHostMessage('drag');
+          return;
+        }
+        drag = { x: event.clientX - widget.offsetLeft, y: event.clientY - widget.offsetTop };
+        widget.setPointerCapture(event.pointerId);
+      });
+      widget.addEventListener('pointermove', (event) => {
+        if (!drag) return;
+        widget.style.left = `${event.clientX - drag.x}px`;
+        widget.style.top = `${event.clientY - drag.y}px`;
+        widget.style.right = 'auto';
+      });
+      widget.addEventListener('pointerup', () => { drag = null; });
+      widget.addEventListener('pointercancel', () => { drag = null; });
+
+      const savePreferences = () => {
+        preferences.apiBase = document.getElementById('api-url').value.trim().replace(/\/+$/, '');
+        preferences.accessCode = document.getElementById('access-code').value;
+        preferences.rememberChat = document.getElementById('memory-toggle').checked;
+        preferences.quiet = document.getElementById('quiet-toggle').checked;
+        storage.setItem('echo.preferences', JSON.stringify(preferences));
+        if (preferences.rememberChat) storage.setItem('echo.chat', JSON.stringify(conversation.slice(-20)));
+        else storage.removeItem('echo.chat');
+        chatStatus.textContent = 'Settings saved on this device.';
+        checkChatService();
+      };
+
+      const renderTasks = () => {
+        taskList.replaceChildren();
+        if (!tasks.length) {
+          const empty = document.createElement('li');
+          empty.className = 'task-item';
+          const emptyMessage = document.createElement('span');
+          emptyMessage.textContent = 'Add one small priority to get started.';
+          empty.append(emptyMessage);
+          taskList.append(empty);
+        }
+        tasks.forEach((task, index) => {
+          const item = document.createElement('li');
+          item.className = `task-item${task.done ? ' done' : ''}`;
+          const label = document.createElement('label');
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.checked = task.done;
+          checkbox.setAttribute('aria-label', `Complete ${task.text}`);
+          checkbox.addEventListener('change', () => {
+            task.done = checkbox.checked;
+            storage.setItem('echo.tasks', JSON.stringify(tasks));
+            renderTasks();
+            updateClock();
+          });
+          const text = document.createElement('span');
+          text.textContent = task.text;
+          label.append(checkbox, text);
+          item.append(label);
+          if (task.dueAt) {
+            const due = document.createElement('small');
+            due.textContent = new Date(task.dueAt).toLocaleString([], {
+              month: 'numeric',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: '2-digit'
+            });
+            item.append(due);
+          }
+          const removeButton = document.createElement('button');
+          removeButton.type = 'button';
+          removeButton.className = 'task-remove';
+          removeButton.setAttribute('aria-label', `Remove ${task.text}`);
+          removeButton.textContent = '×';
+          removeButton.addEventListener('click', () => {
+            tasks.splice(index, 1);
+            storage.setItem('echo.tasks', JSON.stringify(tasks));
+            renderTasks();
+            updateClock();
+          });
+          item.append(removeButton);
+          taskList.append(item);
+        });
+        document.getElementById('task-score').textContent = tasks.filter((task) => !task.done).length;
+      };
+
+      const updateAutomationStatus = () => {
+        const status = document.getElementById('automation-status');
+        const description = document.createElement('span');
+        const tag = document.createElement('span');
+        const enabled = preferences.reminders;
+        description.textContent = enabled ? 'Gentle reminders are on' : 'Reminders are off';
+        tag.className = `tag ${enabled ? 'live' : 'warn'}`;
+        tag.textContent = enabled ? 'On' : 'Off';
+        status.replaceChildren(description, tag);
+      };
+
+      taskForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const text = taskInput.value.trim();
+        if (!text) return;
+        const dueValue = document.getElementById('task-due').value;
+        tasks.push({
+          id: crypto.randomUUID(),
+          text,
+          done: false,
+          createdAt: Date.now(),
+          dueAt: dueValue ? new Date(dueValue).toISOString() : null,
+          reminded: false
+        });
+        storage.setItem('echo.tasks', JSON.stringify(tasks));
+        taskInput.value = '';
+        document.getElementById('task-due').value = '';
+        renderTasks();
+        updateClock();
+        addChatMessage('assistant', 'Added to your priorities. I’ll help you keep it in view.');
       });
 
+      const renderChatMessage = (role, content) => {
+        const bubble = document.createElement('div');
+        bubble.className = `chat-message ${role === 'assistant' ? 'echo' : role === 'user' ? 'you' : 'echo'}`;
+        bubble.textContent = content;
+        chatStream.append(bubble);
+        chatStream.scrollTop = chatStream.scrollHeight;
+      };
+
+      const addChatMessage = (role, content) => {
+        conversation.push({ role, content });
+        renderChatMessage(role, content);
+        sessionStorage.setItem('echo.session-chat', JSON.stringify(conversation.slice(-20)));
+        if (preferences.rememberChat) storage.setItem('echo.chat', JSON.stringify(conversation.slice(-20)));
+      };
+
+      const greetOnce = () => {
+        const today = new Date().toLocaleDateString();
+        if (conversation.length) return;
+        const hour = new Date().getHours();
+        const greeting = storage.getItem('echo.greeted') === today
+          ? 'I’m here whenever you want a hand. What’s on your mind?'
+          : `Hey, good ${hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening'}. I’m glad you’re here. What’s on your mind?`;
+        addChatMessage('assistant', greeting);
+        if (storage.getItem('echo.greeted') !== today) storage.setItem('echo.greeted', today);
+      };
+
+      chatForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const content = chatInput.value.trim();
+        if (!content) return;
+        const apiBase = preferences.apiBase || window.ECHO_API_BASE || '';
+        addChatMessage('user', content);
+        chatInput.value = '';
+        if (!apiBase) {
+          addChatMessage('assistant', 'I’m here with you. To turn on AI conversation, open Companion settings and enter the private chat service URL from the widget owner.');
+          return;
+        }
+
+        chatStatus.textContent = 'Echo is thinking...';
+        document.getElementById('send-btn').disabled = true;
+        try {
+          const response = await fetch(`${apiBase}/api/chat`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Echo-Access-Code': preferences.accessCode
+            },
+            body: JSON.stringify({ messages: conversation.slice(-20) })
+          });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.error || `Chat request failed (${response.status}).`);
+          addChatMessage('assistant', result.reply);
+          chatStatus.textContent = '';
+        } catch (error) {
+          chatStatus.textContent = error.message || 'Could not reach Echo’s chat service.';
+        } finally {
+          document.getElementById('send-btn').disabled = false;
+          chatInput.focus();
+        }
+      });
+
+      document.getElementById('settings-btn').addEventListener('click', () => settings.classList.toggle('open'));
+      document.getElementById('save-settings').addEventListener('click', savePreferences);
+      document.getElementById('api-url').addEventListener('change', savePreferences);
+      document.getElementById('clear-chat').addEventListener('click', () => {
+        conversation = [];
+        chatStream.replaceChildren();
+        storage.removeItem('echo.chat');
+        sessionStorage.removeItem('echo.session-chat');
+        chatStatus.textContent = 'Conversation cleared from this device.';
+      });
+      document.getElementById('reminders-btn').addEventListener('click', async () => {
+        if (!('Notification' in window)) {
+          chatStatus.textContent = 'This browser does not support desktop notifications.';
+          return;
+        }
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+          chatStatus.textContent = 'Notifications remain off. You can change this in browser settings.';
+          return;
+        }
+        preferences.reminders = !preferences.reminders;
+        storage.setItem('echo.preferences', JSON.stringify(preferences));
+        document.getElementById('reminders-btn').textContent = preferences.reminders ? 'Turn reminders off' : 'Turn reminders on';
+        updateAutomationStatus();
+        chatStatus.textContent = preferences.reminders ? 'I’ll nudge you about open priorities while this widget is open.' : 'Reminders paused.';
+      });
+
+      document.getElementById('focus-btn').addEventListener('click', () => {
+        if (focusTimer) {
+          focusRemainingSeconds = Math.max(0, Math.ceil((focusEndsAt - Date.now()) / 1000));
+          focusEndsAt = null;
+          clearInterval(focusTimer);
+          focusTimer = null;
+          storage.setItem('echo.focus', JSON.stringify({ remainingSeconds: focusRemainingSeconds, endsAt: null }));
+          document.getElementById('focus-btn').textContent = 'Resume focus';
+          renderFocusTime();
+          chatStatus.textContent = 'Focus session paused. Take a breath; you can restart when ready.';
+          return;
+        }
+        if (focusRemainingSeconds <= 0) focusRemainingSeconds = 25 * 60;
+        if (!focusEndsAt) {
+          addChatMessage('assistant', 'Let’s make space for one thing. Your 25-minute focus session is on; I’ll be right here.');
+        }
+        focusEndsAt = Date.now() + focusRemainingSeconds * 1000;
+        storage.setItem('echo.focus', JSON.stringify({ remainingSeconds: focusRemainingSeconds, endsAt: focusEndsAt }));
+        startFocusTicker();
+      });
+
+      const renderFocusTime = () => {
+        if (focusEndsAt) focusRemainingSeconds = Math.max(0, Math.ceil((focusEndsAt - Date.now()) / 1000));
+        document.getElementById('focus-score').textContent = focusRemainingSeconds === 0
+          ? 'Done'
+          : `${String(Math.floor(focusRemainingSeconds / 60)).padStart(2, '0')}:${String(focusRemainingSeconds % 60).padStart(2, '0')}`;
+        document.getElementById('focus-btn').textContent = focusEndsAt ? 'Pause focus' : focusRemainingSeconds ? 'Start focus' : 'Start again';
+      };
+
+      const startFocusTicker = () => {
+        if (focusTimer) clearInterval(focusTimer);
+        renderFocusTime();
+        focusTimer = setInterval(() => {
+          renderFocusTime();
+          if (focusRemainingSeconds > 0) return;
+          clearInterval(focusTimer);
+          focusTimer = null;
+          focusEndsAt = null;
+          storage.setItem('echo.focus', JSON.stringify({ remainingSeconds: 0, endsAt: null }));
+          document.getElementById('focus-btn').textContent = 'Start again';
+          addChatMessage('assistant', 'You made it through a focus session. How are you feeling? A short break could help.');
+          if (preferences.reminders && !preferences.quiet && Notification.permission === 'granted') {
+            new Notification('ECHO', { body: 'Your focus session is complete. Take a moment to reset.' });
+          }
+        }, 1000);
+      };
+
+      setInterval(() => {
+        if (!preferences.reminders || preferences.quiet || Notification.permission !== 'granted') return;
+        const now = Date.now();
+        const dueTask = tasks.find((task) =>
+          !task.done && !task.reminded && task.dueAt && new Date(task.dueAt).getTime() <= now
+        );
+        if (!dueTask) return;
+        dueTask.reminded = true;
+        storage.setItem('echo.tasks', JSON.stringify(tasks));
+        new Notification('A gentle nudge from Echo', { body: `Whenever you’re ready: ${dueTask.text}` });
+      }, 30000);
+
+      document.getElementById('api-url').value = preferences.apiBase || window.ECHO_API_BASE || '';
+      document.getElementById('access-code').value = preferences.accessCode || '';
+      document.getElementById('memory-toggle').checked = Boolean(preferences.rememberChat);
+      document.getElementById('quiet-toggle').checked = Boolean(preferences.quiet);
+      document.getElementById('reminders-btn').textContent = preferences.reminders ? 'Turn reminders off' : 'Turn reminders on';
+      document.getElementById('quiet-toggle').addEventListener('change', (event) => {
+        preferences.quiet = event.target.checked;
+        storage.setItem('echo.preferences', JSON.stringify(preferences));
+      });
+      conversation.forEach((message) => renderChatMessage(message.role, message.content));
+      renderTasks();
+      updateAutomationStatus();
+      greetOnce();
       updateClock();
+      checkChatService();
+      if (focusEndsAt && focusRemainingSeconds === 0) {
+        focusEndsAt = null;
+        storage.setItem('echo.focus', JSON.stringify({ remainingSeconds: 0, endsAt: null }));
+        chatStatus.textContent = 'Your focus session finished while you were away. Take a moment before the next thing.';
+      }
+      renderFocusTime();
+      if (focusEndsAt && focusRemainingSeconds > 0) startFocusTicker();
       setInterval(updateClock, 30000);
     </script>
   </body>
