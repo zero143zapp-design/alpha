@@ -48,9 +48,3 @@ Supabase/PostgreSQL remains the intended persistence direction, but it is not
 connected. The Supabase placeholders in `.env.example` are optional setup
 references and are not currently read by the app. Do not put service-role
 credentials in a frontend environment variable.
-
-## Other project
-
-The separate ECHO AI OS project is under `echo-desktop-widget/`; see
-[`echo-desktop-widget/README.md`](echo-desktop-widget/README.md) for its setup
-and deployment guide.
